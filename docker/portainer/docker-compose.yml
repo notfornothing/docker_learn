@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  portainer:
+    image: 'portainer/portainer-ce:latest'
+    container_name: portainer
+    restart: unless-stopped
+    environment:
+      TZ: "Asia/Shanghai"
+    ports:
+      - '9000:9000'   # Web UI 端口
+      - '9443:9443'   # HTTPS 端口（可选）
+    volumes:
+      # Portainer 数据目录
+      - ./data:/data
+      # Docker socket（用于管理 Docker）
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - docker-network
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9000/api/system/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  docker-network:
+    driver: bridge
+    name: docker-network
+
