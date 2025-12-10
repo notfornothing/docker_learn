@@ -24,7 +24,6 @@ buildNumber.properties
 docker/*/data/
 docker/*/letsencrypt/
 docker/*/config/
-nginx-proxy-manager/
 
 # 日志文件
 *.log

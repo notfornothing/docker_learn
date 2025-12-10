@@ -97,6 +97,28 @@
         <p class="subtitle">Nginx Proxy Manager 管理和 Markdown 文档管理 API</p>
 
         <div class="section">
+            <h2>🐳 Docker 服务管理 API</h2>
+            
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/docker/services</span>
+                <div class="description">获取所有 Docker 服务列表（自动扫描 docker/ 目录）</div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/docker/services/{serviceName}</span>
+                <div class="description">获取指定服务的信息（包含 README 内容）</div>
+            </div>
+
+            <div class="endpoint">
+                <span class="method get">GET</span>
+                <span class="path">/api/docker/services/{serviceName}/readme</span>
+                <div class="description">获取指定服务的 README.md 内容</div>
+            </div>
+        </div>
+
+        <div class="section">
             <h2>📋 Nginx Proxy Manager API</h2>
             
             <div class="endpoint">
@@ -154,7 +176,16 @@
 
         <div class="section">
             <h2>💡 使用示例</h2>
-            <pre><code># 获取文档列表
+            <pre><code># 获取所有 Docker 服务列表
+curl http://localhost:10086/api/docker/services
+
+# 获取指定服务信息（包含 README）
+curl http://localhost:10086/api/docker/services/nginx-proxy-manager
+
+# 获取服务的 README
+curl http://localhost:10086/api/docker/services/nginx-proxy-manager/readme
+
+# 获取文档列表
 curl http://localhost:10086/api/docs/list
 
 # 获取文档内容

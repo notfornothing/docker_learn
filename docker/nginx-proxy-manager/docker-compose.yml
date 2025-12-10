@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  nginx-proxy-manager:
+    # 服务定义，可以被根目录的 docker-compose.yml 引用
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    environment:
+      # 时区设置
+      TZ: "Asia/Shanghai"
+      # 数据库配置（可选，默认使用 SQLite）
+      # DB_MYSQL_HOST: "db"
+      # DB_MYSQL_PORT: 3306
+      # DB_MYSQL_USER: "npm"
+      # DB_MYSQL_PASSWORD: "npm"
+      # DB_MYSQL_NAME: "npm"
+    ports:
+      - '80:80'      # HTTP 端口
+      - '443:443'    # HTTPS 端口
+      - '81:81'      # 管理界面端口
+    volumes:
+      # 配置数据目录
+      - ./data:/data
+      # SSL 证书目录
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - nginx-network
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:81"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  nginx-network:
+    driver: bridge
+    name: nginx-network
+
