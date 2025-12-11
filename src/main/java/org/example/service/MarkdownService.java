@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.commonmark.Extension;
+import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
@@ -10,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,8 +21,15 @@ import java.util.stream.Stream;
 public class MarkdownService {
 
     private static final String DOCS_DIR = "docs";
-    private final Parser parser = Parser.builder().build();
-    private final HtmlRenderer renderer = HtmlRenderer.builder().build();
+    
+    // 启用表格扩展（GitHub风格）
+    private static final List<Extension> EXTENSIONS = Arrays.asList(TablesExtension.create());
+    private final Parser parser = Parser.builder()
+            .extensions(EXTENSIONS)
+            .build();
+    private final HtmlRenderer renderer = HtmlRenderer.builder()
+            .extensions(EXTENSIONS)
+            .build();
 
     /**
      * 将 Markdown 文本转换为 HTML

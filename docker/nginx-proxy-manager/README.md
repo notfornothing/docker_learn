@@ -140,6 +140,37 @@ docker/nginx-proxy-manager/
 3. 添加用户名和密码
 4. 保存配置
 
+### 添加自定义 Nginx 配置
+
+Nginx Proxy Manager **不支持直接导入完整的 nginx.conf 文件**，但可以通过 **"Advanced"** 选项卡添加自定义配置片段：
+
+1. 在代理主机配置中，切换到 **"Advanced"** 标签
+2. 在文本框中输入自定义 Nginx 配置指令
+3. 点击 **"Save"** 保存
+
+**示例自定义配置：**
+```nginx
+# 自定义请求头
+add_header X-Custom-Header "Custom Value";
+
+# 自定义日志格式
+access_log /var/log/nginx/custom.log;
+
+# 自定义超时设置
+proxy_read_timeout 300s;
+proxy_connect_timeout 75s;
+```
+
+⚠️ **注意事项：**
+- 只能添加配置片段，不能导入完整的配置文件
+- 自定义配置会追加到 NPM 自动生成的配置后面
+- 建议仅在需要特定功能时添加必要的指令
+- 如果配置有误可能导致代理无法正常工作
+
+**如果需要使用现有 Nginx 配置：**
+- 手动将配置转换为 NPM 的图形界面设置
+- 或在 "Advanced" 选项中逐步添加必要的自定义指令
+
 ---
 
 ## 🐳 Docker Compose 命令

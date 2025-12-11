@@ -1,217 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Docker Learn API</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-        }
-        .section {
-            margin: 30px 0;
-        }
-        .section h2 {
-            color: #4CAF50;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #eee;
-        }
-        .endpoint {
-            background: #f9f9f9;
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 4px solid #2196F3;
-            border-radius: 4px;
-        }
-        .method {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 3px;
-            font-weight: bold;
-            font-size: 12px;
-            margin-right: 10px;
-        }
-        .get { background: #4CAF50; color: white; }
-        .post { background: #2196F3; color: white; }
-        .delete { background: #f44336; color: white; }
-        .path {
-            font-family: 'Courier New', monospace;
-            color: #333;
-            font-weight: 500;
-        }
-        .description {
-            color: #666;
-            margin-top: 8px;
-            font-size: 14px;
-        }
-        code {
-            background: #f4f4f4;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-        }
-        pre {
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 15px;
-            border-radius: 4px;
-            overflow-x: auto;
-            margin: 10px 0;
-        }
-        pre code {
-            background: transparent;
-            padding: 0;
-            color: inherit;
-        }
-    </style>
+    <title>文档管理器 - Docker Learn</title>
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🚀 Docker Learn API</h1>
-        <p class="subtitle">Nginx Proxy Manager 管理和 Markdown 文档管理 API</p>
-
-        <div class="section">
-            <h2>🐳 Docker 服务管理 API</h2>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/docker/services</span>
-                <div class="description">获取所有 Docker 服务列表（自动扫描 docker/ 目录）</div>
-            </div>
-
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/docker/services/{serviceName}</span>
-                <div class="description">获取指定服务的信息（包含 README 内容）</div>
-            </div>
-
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/docker/services/{serviceName}/readme</span>
-                <div class="description">获取指定服务的 README.md 内容</div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>📚 文档管理器</h1>
             </div>
         </div>
+    </nav>
 
-        <div class="section">
-            <h2>📋 Nginx Proxy Manager API</h2>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/nginx/info</span>
-                <div class="description">获取 Nginx Proxy Manager 基本信息</div>
-            </div>
+    <main class="main-content">
+        <div class="container">
+            <!-- 欢迎区域 -->
+            <section class="welcome-section">
+                <h2>Docker 服务文档</h2>
+                <p>点击下方服务查看 README 文档</p>
+            </section>
 
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/nginx/commands</span>
-                <div class="description">获取 Docker Compose 命令列表</div>
-            </div>
+            <!-- Docker 服务列表 -->
+            <section class="section">
+                <div id="docker-services-list" class="cards-grid">
+                    <div class="loading">加载中...</div>
+                </div>
+            </section>
         </div>
+    </main>
 
-        <div class="section">
-            <h2>📚 Markdown 文档 API</h2>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/docs/list</span>
-                <div class="description">获取所有 Markdown 文档列表</div>
-            </div>
+    <script>
+        async function loadDockerServices() {
+            try {
+                const response = await fetch('/api/docker/services');
+                const services = await response.json();
+                const container = document.getElementById('docker-services-list');
+                
+                if (services.length === 0) {
+                    container.innerHTML = '<div class="empty-state">暂无 Docker 服务</div>';
+                    return;
+                }
+                
+                container.innerHTML = services.map(service => `
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>${service.title || service.name}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>${service.description || '暂无描述'}</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="/view.html?type=docker&name=${service.name}" class="btn btn-primary">查看文档</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('docker-services-list').innerHTML = 
+                    '<div class="error">加载失败: ' + error.message + '</div>';
+            }
+        }
 
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span class="path">/api/docs/{filename}</span>
-                <div class="description">获取指定文档内容（返回 markdown 和 html）</div>
-            </div>
-
-            <div class="endpoint">
-                <span class="method post">POST</span>
-                <span class="path">/api/docs/{filename}</span>
-                <div class="description">创建或更新文档</div>
-                <pre><code>{
-  "content": "# Markdown 内容"
-}</code></pre>
-            </div>
-
-            <div class="endpoint">
-                <span class="method delete">DELETE</span>
-                <span class="path">/api/docs/{filename}</span>
-                <div class="description">删除指定文档</div>
-            </div>
-
-            <div class="endpoint">
-                <span class="method post">POST</span>
-                <span class="path">/api/docs/convert</span>
-                <div class="description">将 Markdown 文本转换为 HTML</div>
-                <pre><code>{
-  "markdown": "# Hello World"
-}</code></pre>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>💡 使用示例</h2>
-            <pre><code># 获取所有 Docker 服务列表
-curl http://localhost:10086/api/docker/services
-
-# 获取指定服务信息（包含 README）
-curl http://localhost:10086/api/docker/services/nginx-proxy-manager
-
-# 获取服务的 README
-curl http://localhost:10086/api/docker/services/nginx-proxy-manager/readme
-
-# 获取文档列表
-curl http://localhost:10086/api/docs/list
-
-# 获取文档内容
-curl http://localhost:10086/api/docs/nginx-proxy-manager-guide.md
-
-# 创建文档
-curl -X POST http://localhost:10086/api/docs/test.md \
-  -H "Content-Type: application/json" \
-  -d '{"content": "# Test Document\n\nThis is a test."}'
-
-# 转换 Markdown
-curl -X POST http://localhost:10086/api/docs/convert \
-  -H "Content-Type: application/json" \
-  -d '{"markdown": "# Hello\n\nWorld"}'
-
-# 删除文档
-curl -X DELETE http://localhost:10086/api/docs/test.md</code></pre>
-        </div>
-
-        <div class="section">
-            <h2>🔗 相关链接</h2>
-            <p>
-                <a href="http://localhost:81" target="_blank">Nginx Proxy Manager 管理界面</a> (端口 81)
-            </p>
-        </div>
-    </div>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDockerServices();
+        });
+    </script>
 </body>
 </html>
-

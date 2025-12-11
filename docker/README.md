@@ -67,7 +67,10 @@ docker compose logs -f
 
 | 服务名称 | 目录 | 端口 | 说明 | 状态 |
 |---------|------|------|------|------|
-| Nginx Proxy Manager | `nginx-proxy-manager/` | 80, 443, 81 | 反向代理管理工具 | ✅ |
+| Nginx Proxy Manager | `nginx-proxy-manager/` | 80, 443, 81 | 反向代理管理工具（Web UI） | ✅ |
+| Nginx 官方镜像 | `nginx-official/` | 80, 443 | 直接使用配置文件 | ✅ |
+| Traefik | `traefik/` | 80, 443, 8080 | 现代反向代理（自动发现） | ✅ |
+| Caddy | `caddy/` | 80, 443 | 自动 HTTPS Web 服务器 | ✅ |
 | Portainer | `portainer/` | 9000, 9443 | Docker 容器管理工具 | ✅ |
 
 ## ➕ 添加新服务

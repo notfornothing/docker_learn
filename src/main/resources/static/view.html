@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查看文档 - 文档管理器</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>📚 文档管理器</h1>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div style="margin-bottom: 1rem;">
+                <a href="/" class="btn btn-secondary">← 返回首页</a>
+            </div>
+            
+            <div id="doc-viewer" class="doc-viewer">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        async function loadDocument() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type'); // 'docker' 或 'doc'
+            const name = urlParams.get('name'); // 服务名或文件名
+            
+            if (!type || !name) {
+                document.getElementById('doc-viewer').innerHTML = 
+                    '<div class="error">缺少参数</div>';
+                return;
+            }
+
+            try {
+                let markdown = '';
+                let title = name;
+                
+                if (type === 'docker') {
+                    // 获取 Docker 服务的 README
+                    const response = await fetch(`/api/docker/services/${name}/readme`);
+                    const result = await response.json();
+                    
+                    if (!result.readme) {
+                        document.getElementById('doc-viewer').innerHTML = 
+                            '<div class="error">该服务暂无 README 文档</div>';
+                        return;
+                    }
+                    
+                    markdown = result.readme;
+                    
+                    // 获取服务信息以获取标题
+                    const serviceResponse = await fetch(`/api/docker/services/${name}`);
+                    const service = await serviceResponse.json();
+                    title = service.title || name;
+                } else if (type === 'doc') {
+                    // 获取普通文档
+                    const response = await fetch(`/api/docs/${encodeURIComponent(name)}`);
+                    const doc = await response.json();
+                    markdown = doc.markdown;
+                    title = name;
+                }
+                
+                // 转换 Markdown 为 HTML（后端解析）
+                const convertResponse = await fetch('/api/docs/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ markdown })
+                });
+                const convertResult = await convertResponse.json();
+                
+                document.title = `${title} - 文档管理器`;
+                
+                const viewerHtml = `
+                    <h1>${title}</h1>
+                    <div class="doc-content">${convertResult.html}</div>
+                `;
+                
+                document.getElementById('doc-viewer').innerHTML = viewerHtml;
+            } catch (error) {
+                document.getElementById('doc-viewer').innerHTML = 
+                    '<div class="error">加载失败: ' + error.message + '</div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDocument();
+        });
+    </script>
+</body>
+</html>
+
+
