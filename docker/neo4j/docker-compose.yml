@@ -1,0 +1,49 @@
+version: '3.6'  # 兼容 Docker 17.03.2
+
+services:
+  neo4j:
+    image: neo4j:latest
+    container_name: neo4j
+    restart: always
+    ports:
+      - "7474:7474"  # HTTP 端口（Web 界面）
+      - "7687:7687"  # Bolt 协议端口（数据库连接）
+    volumes:
+      # Neo4j 数据持久化
+      - neo4j_data:/data
+      # Neo4j 日志
+      - neo4j_logs:/logs
+      # Neo4j 导入目录（可选）
+      - neo4j_import:/var/lib/neo4j/import
+      # Neo4j 插件目录（可选）
+      - neo4j_plugins:/plugins
+    environment:
+      # Neo4j 认证配置
+      - NEO4J_AUTH=neo4j/neo4jneo4jneo4j  # 格式: 用户名/密码，建议修改为强密码
+      # 内存配置（可选，根据服务器内存调整）
+      - NEO4J_dbms_memory_heap_initial__size=512m
+      - NEO4J_dbms_memory_heap_max__size=2G
+      # 允许从任何主机连接（简化配置）
+      - NEO4J_dbms_default__listen__address=0.0.0.0
+      # 时区设置
+      - TZ=Asia/Shanghai
+    # 内存限制（可选）
+    # mem_limit: 2g
+    # 健康检查（可选）
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:7474"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+  neo4j_import:
+    driver: local
+  neo4j_plugins:
+    driver: local
+

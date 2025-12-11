@@ -34,7 +34,10 @@ docker_learn/
 │   ├── nginx-proxy-manager/      # Nginx Proxy Manager 服务
 │   │   ├── docker-compose.yml
 │   │   └── README.md
-│   └── portainer/                # Portainer 容器管理工具
+│   ├── portainer/                # Portainer 容器管理工具
+│   │   ├── docker-compose.yml
+│   │   └── README.md
+│   └── neo4j/                    # Neo4j 图数据库
 │       ├── docker-compose.yml
 │       └── README.md
 │
