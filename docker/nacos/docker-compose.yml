@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  nacos:
+    image: nacos/nacos-server:v1.4.8-slim
+    container_name: nacos
+    restart: unless-stopped
+    ports:
+      - "8848:8848"
+    environment:
+      - MODE=standalone
+      - TZ=Asia/Shanghai
+    volumes:
+      - nacos_data:/home/nacos/data
+      - nacos_logs:/home/nacos/logs
+
+volumes:
+  nacos_data:
+  nacos_logs:
