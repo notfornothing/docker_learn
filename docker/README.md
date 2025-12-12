@@ -1,18 +1,21 @@
-# Docker Compose 最简单教程
+# Docker & Docker Compose 完整指南
 
-> 只讲最基础的参数，能启动起来就行
+> 从基础结构到高级命令，一站式 Docker 学习指南
 
 ## 📋 目录
 
-- [最简单的 compose 文件](#最简单的-compose-文件)
-- [必须的参数](#必须的参数)
-- [常用参数](#常用参数)
-- [最简单的示例](#最简单的示例)
-- [常用命令](#常用命令)
+- [第一部分：Docker Compose 基础结构](#第一部分docker-compose-基础结构)
+- [第二部分：Docker Compose 命令](#第二部分docker-compose-命令)
+- [第三部分：Docker 基础命令](#第三部分docker-基础命令)
+- [第四部分：容器管理命令](#第四部分容器管理命令)
+- [第五部分：Volumes 数据卷管理](#第五部分volumes-数据卷管理)
+- [第六部分：高级主题](#第六部分高级主题)
 
 ---
 
-## 🎯 最简单的 compose 文件
+## 第一部分：Docker Compose 基础结构
+
+### 最简单的 compose 文件
 
 一个最简单的 `docker-compose.yml` 只需要 3 个参数就能启动：
 
@@ -26,34 +29,23 @@ services:
       - "8080:80"
 ```
 
-**解释：**
-- `version`: compose 文件格式版本（必须写）
-- `services`: 定义服务（必须写）
-- `web`: 服务名称（随便起名）
-- `image`: 使用哪个镜像（必须写）
-- `ports`: 端口映射（必须写，格式：`"宿主机端口:容器端口"`）
-
-运行：`docker compose up -d`
-
-访问：`http://localhost:8080` 就能看到 nginx 页面了！
+**运行：** `docker compose up -d`  
+**访问：** http://localhost:8080
 
 ---
 
-## ✅ 必须的参数
+### 必须的参数
 
-### 1. `version` - 版本号
+#### 1. `version` - 版本号
 
 ```yaml
 version: '3.8'  # 必须写，推荐用 3.8
 ```
 
-**作用：** 告诉 Docker Compose 使用哪个版本的配置格式
-
+**作用：** 告诉 Docker Compose 使用哪个版本的配置格式  
 **可选值：** `'3.6'`, `'3.7'`, `'3.8'`（推荐用 3.8）
 
----
-
-### 2. `services` - 服务定义
+#### 2. `services` - 服务定义
 
 ```yaml
 services:
@@ -61,34 +53,25 @@ services:
     image: 镜像名
 ```
 
-**作用：** 定义要启动的容器服务
+**作用：** 定义要启动的容器服务  
+**说明：** `services:` 是固定关键字，`服务名` 随便起
 
-**说明：** 
-- `services:` 是固定关键字
-- `服务名` 随便起，比如 `web`、`db`、`redis` 等
-
----
-
-### 3. `image` - 镜像名称
+#### 3. `image` - 镜像名称
 
 ```yaml
 image: nginx:latest
 ```
-
-**作用：** 指定使用哪个 Docker 镜像
 
 **格式：** `镜像名:标签`
 - `nginx:latest` - 最新版本
 - `nginx:1.25` - 指定版本
 - `mysql:8.0` - MySQL 8.0
 
-**必须写，否则不知道启动什么！**
-
 ---
 
-## 🔧 常用参数
+### 常用参数
 
-### `ports` - 端口映射
+#### `ports` - 端口映射
 
 ```yaml
 ports:
@@ -96,46 +79,25 @@ ports:
   - "3306:3306"      # 宿主机3306端口 -> 容器3306端口
 ```
 
-**作用：** 把容器内的端口映射到宿主机，这样就能从外面访问了
-
 **格式：** `"宿主机端口:容器端口"`
 
-**示例：**
-- `"8080:80"` - 访问 `localhost:8080` 就是访问容器的 80 端口
-- `"7474:7474"` - 访问 `localhost:7474` 就是访问容器的 7474 端口
-
----
-
-### `volumes` - 数据卷（持久化）
+#### `volumes` - 数据卷（持久化）
 
 ```yaml
 volumes:
+  # 目录映射（常用）
   - ./data:/data              # 当前目录的data文件夹 -> 容器的/data
+  
+  # 命名卷（推荐）
   - my_volume:/var/lib/mysql  # 命名卷 -> 容器的/var/lib/mysql
+
+volumes:  # 在文件最下面定义命名卷
+  my_volume:
 ```
 
 **作用：** 把数据保存到宿主机，容器删了数据还在
 
-**两种写法：**
-
-1. **目录映射**（常用）
-   ```yaml
-   volumes:
-     - ./data:/data  # 当前目录下的data文件夹映射到容器的/data
-   ```
-
-2. **命名卷**（推荐）
-   ```yaml
-   volumes:
-     - my_data:/data
-   
-   volumes:  # 在文件最下面定义
-     my_data:
-   ```
-
----
-
-### `environment` - 环境变量
+#### `environment` - 环境变量
 
 ```yaml
 environment:
@@ -143,44 +105,24 @@ environment:
   - TZ=Asia/Shanghai
 ```
 
-**作用：** 设置容器的环境变量，很多服务需要这个来配置
-
 **格式：** `变量名=值`
 
-**示例：**
-- `MYSQL_ROOT_PASSWORD=123456` - MySQL 的 root 密码
-- `NEO4J_AUTH=neo4j/password` - Neo4j 的用户名/密码
-- `TZ=Asia/Shanghai` - 时区设置
-
----
-
-### `container_name` - 容器名称
+#### `container_name` - 容器名称
 
 ```yaml
 container_name: my-nginx
 ```
 
-**作用：** 给容器起个名字，方便管理
-
+**作用：** 给容器起个名字，方便管理  
 **不写的话：** Docker 会自动生成名字（通常是 `目录名_服务名_1`）
 
----
-
-### `restart` - 重启策略
+#### `restart` - 重启策略
 
 ```yaml
-restart: always
+restart: unless-stopped
 ```
 
-**作用：** 容器挂了自动重启，服务器重启后自动启动容器
-
 **可选值：**
-- `always` - **总是重启**（包括手动停止后，服务器重启后也会自动启动）
-- `unless-stopped` - **除非手动停止，否则重启**（推荐，服务器重启后会自动启动，但手动停止后不会自动启动）
-- `on-failure` - **只有失败才重启**（退出码非0时重启）
-- `no` - **不自动重启**（默认值，容器挂了不重启，服务器重启后也不会自动启动）
-
-**详细说明：**
 
 | 策略 | 容器崩溃 | 手动停止 | 服务器重启 | 适用场景 |
 |------|---------|---------|-----------|---------|
@@ -189,29 +131,7 @@ restart: always
 | `on-failure` | ✅ 重启 | ❌ 不重启 | ❌ 不启动 | 测试环境 |
 | `no` | ❌ 不重启 | ❌ 不重启 | ❌ 不启动 | 临时服务 |
 
-**示例：**
-```yaml
-services:
-  web:
-    image: nginx:latest
-    restart: unless-stopped  # 推荐用这个
-```
-
-**开机自启动：**
-- `always` 和 `unless-stopped` 都会在服务器重启后自动启动容器
-- 只要 Docker 服务开机自启，这些容器就会自动启动
-
----
-
-## 🔄 启动和重启相关参数（完整列表）
-
-### 1. `restart` - 重启策略（已介绍）
-
-见上面的详细说明。
-
----
-
-### 2. `depends_on` - 服务依赖（启动顺序）
+#### `depends_on` - 服务依赖（启动顺序）
 
 ```yaml
 services:
@@ -230,366 +150,93 @@ services:
 
 **作用：** 控制服务启动顺序，`web` 会等 `db` 和 `redis` 启动后再启动
 
-**注意：** 只控制启动顺序，不等待服务就绪（服务启动了但不一定可用）
+**等待服务就绪：**
 
-**示例：**
 ```yaml
-services:
-  app:
-    image: myapp:latest
-    depends_on:
-      - mysql      # 等 mysql 启动后再启动 app
-      - redis      # 等 redis 启动后再启动 app
-  
+depends_on:
   mysql:
-    image: mysql:8.0
-  
+    condition: service_healthy  # 等 mysql 健康后才启动
   redis:
-    image: redis:latest
+    condition: service_started   # redis 启动后就启动
 ```
 
----
-
-### 3. `healthcheck` - 健康检查
+#### `healthcheck` - 健康检查
 
 ```yaml
 healthcheck:
-  test: ["CMD", "curl", "-f", "http://localhost:80"]
+  test: ["CMD", "wget", "--spider", "-q", "-T", "5", "http://127.0.0.1/"]
   interval: 30s      # 每30秒检查一次
   timeout: 10s       # 10秒没响应就超时
   retries: 3         # 失败3次才认为不健康
-  start_period: 40s  # 启动后40秒内不检查（给服务启动时间）
+  start_period: 40s  # 启动后40秒内不检查
 ```
-
-**作用：** 定期检查容器是否健康，不健康时会重启（如果配置了 restart）
 
 **常用检查方式：**
 
-1. **HTTP 检查**（Web 服务）
-   ```yaml
-   healthcheck:
-     test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
-     interval: 30s
-     timeout: 10s
-     retries: 3
-   ```
-
-2. **TCP 检查**（数据库等）
-   ```yaml
-   healthcheck:
-     test: ["CMD", "nc", "-z", "localhost", "3306"]
-     interval: 30s
-     timeout: 10s
-     retries: 3
-   ```
-
-3. **命令检查**（自定义）
-   ```yaml
-   healthcheck:
-     test: ["CMD", "pg_isready", "-U", "postgres"]
-     interval: 30s
-     timeout: 10s
-     retries: 3
-   ```
-
-**参数说明：**
-- `test` - 检查命令（必须）
-- `interval` - 检查间隔（默认 30s）
-- `timeout` - 超时时间（默认 10s）
-- `retries` - 失败重试次数（默认 3）
-- `start_period` - 启动宽限期（默认 0s）
-
-**示例：**
 ```yaml
-services:
-  nginx:
-    image: nginx:latest
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+# HTTP 检查（Web 服务）
+test: ["CMD", "wget", "--spider", "-q", "-T", "5", "http://localhost:80"]
+
+# TCP 检查（数据库等）
+test: ["CMD", "nc", "-z", "localhost", "3306"]
+
+# 命令检查（自定义）
+test: ["CMD", "pg_isready", "-U", "postgres"]
+```
+
+#### `extra_hosts` - 主机名映射（Linux 访问宿主机）
+
+```yaml
+extra_hosts:
+  - "host.docker.internal:host-gateway"
+```
+
+**作用：** 让容器能访问宿主机服务（Linux 需要，Mac/Windows 自动支持）
+
+**使用场景：** 容器内需要访问宿主机上的服务
+
+```nginx
+# nginx 配置中
+proxy_pass http://host.docker.internal:9000/;  # ✅ 正确！指向宿主机
+proxy_pass http://127.0.0.1:9000/;              # ❌ 错误！指向容器自己
 ```
 
 ---
 
-### 4. `depends_on` + `condition` - 等待服务就绪
-
-```yaml
-services:
-  app:
-    image: myapp:latest
-    depends_on:
-      mysql:
-        condition: service_healthy  # 等 mysql 健康后才启动
-      redis:
-        condition: service_started  # redis 启动后就启动（不等待健康）
-  
-  mysql:
-    image: mysql:8.0
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-```
-
-**作用：** 更精确地控制启动顺序
-
-**condition 可选值：**
-- `service_started` - 服务启动后（默认）
-- `service_healthy` - 服务健康后（需要配置 healthcheck）
-- `service_completed_successfully` - 服务成功完成后（一次性任务）
-
-**示例：**
-```yaml
-services:
-  web:
-    image: nginx:latest
-    depends_on:
-      db:
-        condition: service_healthy  # 等数据库健康后才启动
-      cache:
-        condition: service_started  # 缓存启动后就启动
-  
-  db:
-    image: mysql:8.0
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping"]
-      interval: 10s
-      retries: 5
-```
-
----
-
-### 5. `deploy.restart_policy` - 部署重启策略（Swarm 模式）
-
-```yaml
-services:
-  web:
-    image: nginx:latest
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-```
-
-**作用：** 在 Docker Swarm 模式下使用（单机模式用 `restart` 就行）
-
-**参数说明：**
-- `condition` - 重启条件（`none`、`on-failure`、`any`）
-- `delay` - 重启延迟时间
-- `max_attempts` - 最大重启次数
-- `window` - 时间窗口
-
-**注意：** 单机 Docker Compose 不需要这个，用 `restart` 就够了。
-
----
-
-### 6. `init` - 使用 init 进程
-
-```yaml
-services:
-  web:
-    image: nginx:latest
-    init: true
-```
-
-**作用：** 使用 init 进程处理僵尸进程，容器退出时清理子进程
-
-**适用场景：** 容器内会启动多个进程的服务
-
-**默认值：** `false`
-
----
-
-### 7. `stop_grace_period` - 停止宽限期
-
-```yaml
-services:
-  web:
-    image: nginx:latest
-    stop_grace_period: 30s
-```
-
-**作用：** 停止容器时等待的时间，让容器优雅关闭
-
-**默认值：** `10s`
-
-**示例：**
-```yaml
-services:
-  mysql:
-    image: mysql:8.0
-    stop_grace_period: 30s  # 停止时等30秒，让 MySQL 优雅关闭
-```
-
----
-
-## 📋 启动相关参数总结
-
-| 参数 | 作用 | 常用值 |
-|------|------|--------|
-| `restart` | 重启策略和开机自启 | `unless-stopped`（推荐） |
-| `depends_on` | 控制启动顺序 | `- 服务名` |
-| `healthcheck` | 健康检查 | 根据服务类型配置 |
-| `init` | 使用 init 进程 | `true`（多进程服务） |
-| `stop_grace_period` | 停止宽限期 | `30s`（数据库等） |
-
----
-
-## 🎯 开机自启动完整配置示例
+### 完整配置模板
 
 ```yaml
 version: '3.8'
 
 services:
-  # Web 服务
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    restart: unless-stopped  # 服务器重启后自动启动
-    ports:
-      - "80:80"
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-  
-  # 数据库服务
-  mysql:
-    image: mysql:8.0
-    container_name: mysql
-    restart: unless-stopped  # 服务器重启后自动启动
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=123456
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    stop_grace_period: 30s  # 停止时优雅关闭
-  
-  # 应用服务（依赖数据库）
-  app:
-    image: myapp:latest
-    container_name: app
-    restart: unless-stopped  # 服务器重启后自动启动
-    depends_on:
-      mysql:
-        condition: service_healthy  # 等数据库健康后才启动
-    ports:
-      - "8080:8080"
-```
-
-**说明：**
-1. `restart: unless-stopped` - 服务器重启后自动启动
-2. `depends_on` - 控制启动顺序
-3. `healthcheck` - 检查服务是否健康
-4. `stop_grace_period` - 优雅关闭
-
----
-
-## 📝 最简单的示例
-
-### 示例 1：启动 Nginx（最简单）
-
-```yaml
-version: '3.8'
-
-services:
-  web:
-    image: nginx:latest
+  服务名:
+    image: 镜像名:标签
+    container_name: 容器名
+    restart: unless-stopped  # 开机自启动 + 崩溃重启
     ports:
       - "8080:80"
-```
-
-**运行：** `docker compose up -d`
-
-**访问：** http://localhost:8080
-
----
-
-### 示例 2：启动 MySQL（加环境变量）
-
-```yaml
-version: '3.8'
-
-services:
-  mysql:
-    image: mysql:8.0
-    ports:
-      - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=123456
-```
-
-**运行：** `docker compose up -d`
-
-**连接：** `mysql -h localhost -P 3306 -u root -p123456`
-
----
-
-### 示例 3：启动 Redis（加数据持久化）
-
-```yaml
-version: '3.8'
-
-services:
-  redis:
-    image: redis:latest
-    ports:
-      - "6379:6379"
+      - 变量名=值
     volumes:
-      - redis_data:/data
+      - 数据卷名:/容器内路径
+      - ./目录:/容器内路径
+    depends_on:
+      - 依赖的服务名
+    healthcheck:
+      test: ["CMD", "检查命令"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    extra_hosts:  # Linux 需要
+      - "host.docker.internal:host-gateway"
 
 volumes:
-  redis_data:
+  数据卷名:
 ```
-
-**运行：** `docker compose up -d`
-
-**连接：** `redis-cli -h localhost -p 6379`
 
 ---
 
-### 示例 4：启动 Neo4j（完整示例）
-
-```yaml
-version: '3.8'
-
-services:
-  neo4j:
-    image: neo4j:latest
-    container_name: neo4j
-    restart: always
-    ports:
-      - "7474:7474"
-      - "7687:7687"
-    environment:
-      - NEO4J_AUTH=neo4j/password
-    volumes:
-      - neo4j_data:/data
-
-volumes:
-  neo4j_data:
-```
-
-**运行：** `docker compose up -d`
-
-**访问：** http://localhost:7474（用户名：neo4j，密码：password）
-
----
-
-## 🚀 常用命令
+## 第二部分：Docker Compose 命令
 
 ### 启动和停止
 
@@ -600,11 +247,17 @@ docker compose up -d
 # 启动服务（前台运行，看日志）
 docker compose up
 
-# 停止服务
+# 停止服务（保留 volumes）
 docker compose down
 
-# 停止并删除数据卷（数据会丢失！）
+# 停止并删除数据卷（⚠️ 数据会丢失！）
 docker compose down -v
+
+# 重启服务
+docker compose restart
+
+# 重启某个服务
+docker compose restart 服务名
 ```
 
 ### 查看状态
@@ -621,28 +274,443 @@ docker compose logs -f
 
 # 查看某个服务的日志
 docker compose logs -f 服务名
+
+# 查看最后 N 行日志
+docker compose logs --tail=100 服务名
 ```
 
 ### 其他操作
 
 ```bash
-# 重启服务
-docker compose restart
-
-# 重启某个服务
-docker compose restart 服务名
-
 # 进入容器
 docker compose exec 服务名 sh
+# 或
+docker compose exec 服务名 bash
 
-# 更新镜像
+# 更新镜像并重启
 docker compose pull
 docker compose up -d
+
+# 强制重新创建容器（保留 volumes）
+docker compose up -d --force-recreate
+
+# 查看配置
+docker compose config
+
+# 查看 volumes
+docker compose config --volumes
 ```
 
 ---
 
-## 💡 快速参考
+## 第三部分：Docker 基础命令
+
+### 镜像操作
+
+```bash
+# 拉取镜像
+docker pull nginx:latest
+
+# 拉取指定架构的镜像
+docker pull --platform linux/amd64 nginx:latest
+
+# 列出本地镜像
+docker images
+# 或
+docker image ls
+
+# 删除镜像
+docker rmi 镜像名:标签
+# 或
+docker image rm 镜像名:标签
+
+# 查看镜像详情（本地）
+docker image inspect 镜像名:标签
+
+# 查看镜像架构
+docker image inspect 镜像名:标签 --format '{{.Architecture}}'
+```
+
+### 容器操作
+
+```bash
+# 列出运行中的容器
+docker ps
+
+# 列出所有容器（包括停止的）
+docker ps -a
+
+# 启动容器
+docker start 容器名
+
+# 停止容器
+docker stop 容器名
+
+# 重启容器
+docker restart 容器名
+
+# 删除容器
+docker rm 容器名
+
+# 强制删除运行中的容器
+docker rm -f 容器名
+
+# 查看容器日志
+docker logs 容器名
+
+# 实时查看日志
+docker logs -f 容器名
+
+# 进入容器
+docker exec -it 容器名 sh
+# 或
+docker exec -it 容器名 bash
+
+# 查看容器详情
+docker inspect 容器名
+```
+
+### 查询远程镜像信息
+
+```bash
+# 查看远程镜像的 Manifest（多架构信息）
+docker manifest inspect 镜像名:标签
+
+# 查看远程镜像支持的架构
+docker manifest inspect 镜像名:标签 | grep -A 5 "platform"
+
+# 使用 buildx 查看（更详细）
+docker buildx imagetools inspect 镜像名:标签
+```
+
+**区别：**
+- `docker image inspect` - 查询**本地**镜像（必须已拉取）
+- `docker manifest inspect` - 查询**远程**镜像（不需要本地有）
+
+---
+
+## 第四部分：容器管理命令
+
+### `docker update` - 动态修改容器配置
+
+**作用：** 无需删除容器，动态修改运行中容器的配置
+
+#### 修改重启策略
+
+```bash
+# 修改为 always（总是自启动）
+docker update --restart=always 容器名
+
+# 修改为 unless-stopped（推荐）
+docker update --restart=unless-stopped 容器名
+
+# 取消自启动
+docker update --restart=no 容器名
+```
+
+#### 修改资源限制
+
+```bash
+# CPU 限制
+docker update --cpus=2.5 容器名        # 限制使用 2.5 个 CPU 核心
+docker update --cpus=1 容器名          # 限制使用 1 个 CPU 核心
+
+# 内存限制
+docker update --memory=512m 容器名     # 限制内存为 512MB
+docker update --memory=2g 容器名       # 限制内存为 2GB
+
+# CPU 权重（优先级）
+docker update --cpu-shares=1024 容器名 # 提高 CPU 优先级（默认 1024）
+
+# 进程数限制
+docker update --pids-limit=100 容器名  # 限制最大进程数
+
+# CPU 绑定
+docker update --cpuset-cpus=0,1 容器名 # 只使用 CPU 0 和 1
+```
+
+#### 组合修改
+
+```bash
+docker update \
+  --memory=1g \
+  --cpus=2 \
+  --restart=always \
+  --cpu-shares=512 \
+  容器名
+```
+
+**注意：** `docker update` **不能修改**端口映射、环境变量、卷挂载、网络配置，这些需要删除容器后重新创建。
+
+---
+
+### 查看容器重启策略
+
+```bash
+# 查看单个容器的重启策略
+docker inspect 容器名 --format '{{.HostConfig.RestartPolicy.Name}}'
+
+# 查看所有容器的重启策略
+docker ps -a --format "{{.Names}}" | while read name; do
+    restart=$(docker inspect "$name" --format '{{.HostConfig.RestartPolicy.Name}}' 2>/dev/null)
+    printf "%-25s %s\n" "$name" "$restart"
+done
+
+# 只看自启动的容器（always）
+docker ps -a --format "{{.Names}}" | while read name; do
+    restart=$(docker inspect "$name" --format '{{.HostConfig.RestartPolicy.Name}}' 2>/dev/null)
+    [ "$restart" = "always" ] && echo "$name"
+done
+```
+
+---
+
+## 第五部分：Volumes 数据卷管理
+
+### Volumes 基础概念
+
+#### 命名卷 vs 绑定挂载
+
+```yaml
+# 命名卷（推荐）
+volumes:
+  - my_data:/var/lib/mysql
+
+volumes:
+  my_data:
+
+# 绑定挂载（目录映射）
+volumes:
+  - ./data:/var/lib/mysql
+```
+
+**区别：**
+
+| 类型 | 特点 | 适用场景 |
+|------|------|---------|
+| **命名卷** | Docker 自动管理位置，跨平台兼容 | 数据库数据、应用数据 |
+| **绑定挂载** | 数据位置直观，方便备份 | 配置文件、日志文件 |
+
+### Volumes 命令
+
+```bash
+# 列出所有卷
+docker volume ls
+
+# 查看卷详情
+docker volume inspect 卷名
+
+# 删除卷（⚠️ 数据会丢失！）
+docker volume rm 卷名
+
+# 删除未使用的卷
+docker volume prune
+
+# 查看容器使用的卷
+docker inspect 容器名 --format '{{range .Mounts}}{{.Type}} {{.Source}} -> {{.Destination}}{{"\n"}}{{end}}'
+```
+
+### Volumes 命名规则
+
+**Docker Compose 自动命名：** `项目名_卷名`
+
+```yaml
+# docker/mysql/docker-compose.yml
+volumes:
+  - data:/var/lib/mysql
+
+volumes:
+  data:
+```
+
+**实际卷名：** `mysql_data`（项目名 `mysql` + 卷名 `data`）
+
+**不同项目的同名卷不会冲突：**
+- `mysql_data` - MySQL 项目的卷
+- `redis_data` - Redis 项目的卷
+
+### 复用已存在的卷
+
+```yaml
+volumes:
+  mysql_data:
+    external: true              # 声明这是外部已存在的卷
+    name: mysql_mysql_data      # 指定实际的卷名
+```
+
+### Volumes 生命周期
+
+**重要：命名卷是独立的，不绑定到容器！**
+
+| 操作 | 容器状态 | 卷状态 | 数据状态 |
+|------|---------|--------|---------|
+| `docker rm 容器名` | ❌ 删除 | ✅ 保留 | ✅ 保留 |
+| `docker compose down` | ❌ 删除 | ✅ 保留 | ✅ 保留 |
+| `docker compose down -v` | ❌ 删除 | ❌ 删除 | ❌ 丢失 |
+| `docker volume rm 卷名` | ✅ 保留 | ❌ 删除 | ❌ 丢失 |
+
+**记忆口诀：**
+> **卷是独立的，容器只是租客**  
+> **删除租客（容器），房子（卷）还在**  
+> **只有拆房子（删除卷），数据才丢失**
+
+---
+
+## 第六部分：高级主题
+
+### 多架构镜像
+
+#### 查看远程镜像支持的架构
+
+```bash
+# 查看 Manifest List（所有架构）
+docker manifest inspect 镜像名:标签
+
+# 查看支持的架构列表
+docker manifest inspect 镜像名:标签 | grep -A 5 "platform"
+```
+
+#### 拉取指定架构的镜像
+
+```bash
+# 拉取 amd64 架构
+docker pull --platform linux/amd64 镜像名:标签
+
+# 拉取 arm64 架构
+docker pull --platform linux/arm64 镜像名:标签
+
+# 在 docker-compose.yml 中指定
+services:
+  app:
+    image: 镜像名:标签
+    platform: linux/amd64
+```
+
+#### 使用 Digest 拉取镜像
+
+```bash
+# 使用 Manifest Digest（指定架构）
+docker pull 镜像名@sha256:manifest_digest...
+
+# 使用 Index Digest（自动选择架构）
+docker pull 镜像名@sha256:index_digest...
+
+# 在 docker-compose.yml 中使用
+services:
+  app:
+    image: 镜像名@sha256:digest...
+```
+
+**区别：**
+- **Index Digest** - 标识整个多架构镜像（所有架构的集合）
+- **Manifest Digest** - 标识单个架构镜像（特定架构的内容）
+
+---
+
+### 容器访问宿主机服务
+
+#### Mac/Windows（自动支持）
+
+```yaml
+services:
+  nginx:
+    # Mac/Windows 自动支持 host.docker.internal
+    # 不需要额外配置
+```
+
+#### Linux（需要手动配置）
+
+```yaml
+services:
+  nginx:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+```
+
+**使用：**
+
+```nginx
+# nginx 配置中
+proxy_pass http://host.docker.internal:9000/;  # ✅ 正确！指向宿主机
+proxy_pass http://127.0.0.1:9000/;              # ❌ 错误！指向容器自己
+```
+
+**验证：**
+
+```bash
+# 查看容器内的 hosts 文件
+docker exec 容器名 cat /etc/hosts
+
+# 测试是否能解析
+docker exec 容器名 ping host.docker.internal
+
+# 测试是否能访问宿主机服务
+docker exec 容器名 curl http://host.docker.internal:9000/
+```
+
+---
+
+### 开机自启动
+
+#### Docker Compose 配置
+
+```yaml
+services:
+  nginx:
+    restart: unless-stopped  # 服务器重启后自动启动
+```
+
+#### 查看自启动的容器
+
+```bash
+# 查看所有容器的重启策略
+docker ps -a --format "{{.Names}}" | while read name; do
+    restart=$(docker inspect "$name" --format '{{.HostConfig.RestartPolicy.Name}}' 2>/dev/null)
+    printf "%-25s %s\n" "$name" "$restart"
+done
+
+# 只看 always 自启动的容器
+docker ps -a --format "{{.Names}}" | while read name; do
+    restart=$(docker inspect "$name" --format '{{.HostConfig.RestartPolicy.Name}}' 2>/dev/null)
+    [ "$restart" = "always" ] && echo "$name"
+done
+```
+
+#### 修改重启策略（无需删除容器）
+
+```bash
+# 修改为 always
+docker update --restart=always 容器名
+
+# 修改为 unless-stopped
+docker update --restart=unless-stopped 容器名
+
+# 取消自启动
+docker update --restart=no 容器名
+```
+
+---
+
+### 本地 vs 远程命令对比
+
+| 命令类型 | 操作对象 | 是否需要本地镜像 | 是否访问远程 |
+|---------|---------|----------------|-------------|
+| `docker image *` | 本地镜像 | ✅ 必须 | ❌ 不访问 |
+| `docker manifest *` | 远程仓库 | ❌ 不需要 | ✅ 访问 |
+| `docker pull` | 远程→本地 | ❌ 不需要 | ✅ 访问 |
+| `docker push` | 本地→远程 | ✅ 必须 | ✅ 访问 |
+| `docker images` | 本地镜像列表 | - | ❌ 不访问 |
+| `docker search` | 远程仓库搜索 | ❌ 不需要 | ✅ 访问 |
+
+**记忆规律：**
+- `image` 开头 → 操作本地镜像
+- `manifest` 开头 → 操作远程 Manifest
+- `pull/push` → 远程操作
+- 不带前缀的通用命令 → 通常操作本地
+
+---
+
+## 📚 快速参考
 
 ### 最小配置模板
 
@@ -656,7 +724,7 @@ services:
       - "宿主机端口:容器端口"
 ```
 
-### 完整配置模板（包含启动相关参数）
+### 完整配置模板
 
 ```yaml
 version: '3.8'
@@ -665,13 +733,14 @@ services:
   服务名:
     image: 镜像名:标签
     container_name: 容器名
-    restart: unless-stopped  # 开机自启动 + 崩溃重启
+    restart: unless-stopped
     ports:
       - "8080:80"
     environment:
       - 变量名=值
     volumes:
       - 数据卷名:/容器内路径
+      - ./目录:/容器内路径
     depends_on:
       - 依赖的服务名
     healthcheck:
@@ -679,25 +748,39 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    stop_grace_period: 30s
+    extra_hosts:  # Linux 需要
+      - "host.docker.internal:host-gateway"
 
 volumes:
   数据卷名:
 ```
 
-### 启动相关参数快速参考表
+### 常用命令速查
 
-| 参数 | 作用 | 推荐值 | 示例 |
-|------|------|--------|------|
-| `restart` | 重启策略和开机自启 | `unless-stopped` | `restart: unless-stopped` |
-| `depends_on` | 控制启动顺序 | 列表 | `depends_on: - db` |
-| `healthcheck.test` | 健康检查命令 | 根据服务 | `test: ["CMD", "curl", "-f", "http://localhost"]` |
-| `healthcheck.interval` | 检查间隔 | `30s` | `interval: 30s` |
-| `healthcheck.timeout` | 超时时间 | `10s` | `timeout: 10s` |
-| `healthcheck.retries` | 失败重试次数 | `3` | `retries: 3` |
-| `healthcheck.start_period` | 启动宽限期 | `40s` | `start_period: 40s` |
-| `stop_grace_period` | 停止宽限期 | `30s` | `stop_grace_period: 30s` |
-| `init` | 使用 init 进程 | `true`（多进程） | `init: true` |
+```bash
+# Compose 命令
+docker compose up -d              # 启动
+docker compose down               # 停止（保留 volumes）
+docker compose ps                 # 查看状态
+docker compose logs -f            # 查看日志
+docker compose restart            # 重启
+
+# Docker 命令
+docker ps -a                      # 查看所有容器
+docker logs -f 容器名              # 查看日志
+docker exec -it 容器名 sh         # 进入容器
+docker inspect 容器名              # 查看详情
+
+# Volumes 命令
+docker volume ls                  # 列出卷
+docker volume inspect 卷名        # 查看卷详情
+docker volume rm 卷名             # 删除卷
+
+# Update 命令
+docker update --restart=always 容器名    # 修改重启策略
+docker update --memory=1g 容器名        # 修改内存限制
+docker update --cpus=2 容器名            # 修改 CPU 限制
+```
 
 ---
 
@@ -705,58 +788,65 @@ volumes:
 
 ### Q: 端口被占用怎么办？
 
-**A:** 换个端口号，比如把 `8080` 改成 `8081`
+**A:** 换个端口号，或者停止占用端口的服务
 
-```yaml
+```bash
+# 查看端口占用
+lsof -i :80
+
+# 修改 compose 文件中的端口
 ports:
   - "8081:80"  # 改成8081
 ```
 
-### Q: 怎么知道服务需要什么环境变量？
-
-**A:** 看镜像的文档，或者去 Docker Hub 搜镜像名，看说明
-
-### Q: 数据卷是干什么的？
-
-**A:** 保存数据用的。不写数据卷，容器删了数据就没了；写了数据卷，数据会保存到宿主机
-
-### Q: `restart: always` 和 `unless-stopped` 有什么区别？
+### Q: 数据会丢失吗？
 
 **A:** 
-- `always` - 任何时候都重启（包括手动停止后）
-- `unless-stopped` - 手动停止后不重启（推荐用这个）
+- ✅ 使用命名卷：删除容器**不会**丢失数据
+- ✅ 使用绑定挂载：删除容器**不会**丢失数据
+- ❌ 使用 `docker compose down -v`：**会**丢失数据
+- ❌ 数据在容器内（没有 volume）：**会**丢失
+
+### Q: 如何修改容器的配置？
+
+**A:**
+- **可以动态修改**：重启策略、资源限制 → 使用 `docker update`
+- **需要重新创建**：端口映射、环境变量、卷挂载 → 修改 compose 文件后 `docker compose up -d`
+
+### Q: 如何查看容器是否自启动？
+
+**A:**
+```bash
+docker inspect 容器名 --format '{{.HostConfig.RestartPolicy.Name}}'
+```
+
+### Q: 容器如何访问宿主机服务？
+
+**A:**
+- Mac/Windows：直接使用 `host.docker.internal`
+- Linux：需要在 compose 文件中添加 `extra_hosts`
 
 ---
 
-## 📚 总结
+## 📝 总结
 
-**最基础的 3 个参数：**
-1. `version` - 版本号
-2. `services` - 服务定义
-3. `image` - 镜像名称
+### 核心要点
 
-**最常用的 5 个参数：**
-1. `ports` - 端口映射
-2. `volumes` - 数据卷
-3. `environment` - 环境变量
-4. `container_name` - 容器名
-5. `restart` - 重启策略
+1. **Docker Compose 最基础**：`version` + `services` + `image` + `ports`
+2. **数据持久化**：使用 `volumes`（命名卷或绑定挂载）
+3. **开机自启动**：使用 `restart: unless-stopped` 或 `restart: always`
+4. **动态修改配置**：使用 `docker update`（无需删除容器）
+5. **Volumes 是独立的**：删除容器不会删除卷，数据会保留
 
-**启动和重启相关参数（7个）：**
-1. `restart` - 重启策略（`always`、`unless-stopped`、`on-failure`、`no`）
-2. `depends_on` - 服务依赖和启动顺序
-3. `healthcheck` - 健康检查（定期检查服务是否正常）
-4. `depends_on.condition` - 等待服务就绪（`service_started`、`service_healthy`）
-5. `init` - 使用 init 进程（处理僵尸进程）
-6. `stop_grace_period` - 停止宽限期（优雅关闭）
-7. `deploy.restart_policy` - Swarm 模式重启策略（单机不用）
+### 推荐配置
 
-**开机自启动：**
-- 使用 `restart: always` 或 `restart: unless-stopped` 即可实现开机自启动
-- 只要 Docker 服务开机自启，这些容器就会自动启动
-
-**记住：** 只要有了 `version`、`services`、`image` 和 `ports`，就能启动一个服务了！
+```yaml
+restart: unless-stopped  # 推荐的重启策略
+volumes:                 # 使用命名卷持久化数据
+healthcheck:            # 配置健康检查
+depends_on:             # 控制启动顺序
+```
 
 ---
 
-**最后更新**: 2025-12-10
+**最后更新**: 2025-12-12
