@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   redis:
     image: redis:latest
@@ -10,11 +8,12 @@ services:
     volumes:
       # 数据持久化
       - redis_data:/data
-      # 配置文件（可选）
-      - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: redis-server /usr/local/etc/redis/redis.conf
-    # 或者使用默认配置（注释掉上面的 command）
-    # command: redis-server --appendonly yes
+      # 配置文件（可选，如果不需要可以注释掉）
+      # - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    # 使用默认配置（启用 AOF 持久化）
+    command: redis-server --appendonly yes
+    # 或者使用自定义配置文件（取消注释上面的 volumes 配置行）
+    # command: redis-server /usr/local/etc/redis/redis.conf
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
