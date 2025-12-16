@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      - "58080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      # 挂载宿主机 Maven（根据实际情况修改路径）
+      - /usr/local/maven:/usr/local/maven:ro  # 只读挂载（推荐）
+      # 或者可读写
+      # - /usr/local/maven:/usr/local/maven
+    environment:
+      - TZ=Asia/Shanghai
+
+volumes:
+  jenkins_data:
+

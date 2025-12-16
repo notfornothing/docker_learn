@@ -17,3 +17,4 @@ services:
 volumes:
   nacos_data:
   nacos_logs:
+
