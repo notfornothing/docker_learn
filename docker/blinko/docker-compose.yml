@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:14
+    container_name: blinko-postgres
+    restart: unless-stopped
+    networks:
+      - blinko-network
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - TZ=Asia/Shanghai
+    volumes:
+      - ${HOME}/.blinko_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  blinko:
+    image: blinkospace/blinko:latest
+    container_name: blinko-website
+    restart: unless-stopped
+    networks:
+      - blinko-network
+    ports:
+      - "1111:1111"
+    volumes:
+      - ${HOME}/.blinko:/app/.blinko
+    environment:
+      - NODE_ENV=production
+      - NEXTAUTH_SECRET=my_ultra_secure_nextauth_secret
+      - DATABASE_URL=postgresql://postgres:mysecretpassword@blinko-postgres:5432/postgres
+      - TZ=Asia/Shanghai
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+networks:
+  blinko-network:
+    driver: bridge
+
