@@ -1,0 +1,10 @@
+services:
+  nextchat:
+    image: yidadaa/chatgpt-next-web:latest
+    container_name: nextchat
+    restart: unless-stopped
+    ports:
+      - "29999:3000"
+    environment:
+      - TZ=Asia/Shanghai
+
