@@ -1,10 +1,14 @@
 services:
   nextchat:
-    image: yidadaa/chatgpt-next-web:latest
+    image: yidadaa/chatgpt-next-web:v2.16.1
     container_name: nextchat
     restart: unless-stopped
     ports:
       - "29999:3000"
     environment:
       - TZ=Asia/Shanghai
-
+      # 火山引擎（ByteDance）配置
+      # 支持豆包模型和 DeepSeek 模型（通过火山引擎 API）
+      - BYTEDANCE_API_KEY=
+      - BYTEDANCE_URL=ark.cn-beijing.volces.com
+      - CUSTOM_MODELS=-all,+DeepSeekV3-2@ByteDance=deepseek-v3-2-251201, +字节的_在线推理_好像是自动给你选@ByteDance=ep-20260108164623-gkxw5,doubao-seedream-4-5-251128@ByteDance@doubao-seedream-4-5-251128
