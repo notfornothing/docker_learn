@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  dpanel:
+    image: dpanel/dpanel:latest
+    container_name: dpanel
+    restart: unless-stopped
+    environment:
+      TZ: "Asia/Shanghai"
+    ports:
+      - '8807:8080'   # Web UI 端口
+    volumes:
+      # Docker socket（用于管理 Docker 容器）
+      - /var/run/docker.sock:/var/run/docker.sock
+      # dpanel 数据目录（使用命名卷）
+      - dpanel_data:/dpanel
+    networks:
+      - docker-network
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  dpanel_data:
+    name: dpanel  # 复用现有的命名卷
+
+networks:
+  docker-network:
+    driver: bridge
+    name: docker-network
+
