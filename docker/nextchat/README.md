@@ -65,12 +65,11 @@ TZ=Asia/Shanghai
 CODE=my-secure-password
 
 # 火山引擎配置
-BYTEDANCE_API_KEY=bd2d5cad-4f4c-40c3-9473-ea97709316fe
-BYTEDANCE_URL=https://ark.cn-beijing.volces.com/api/v3/chat/completions
+BYTEDANCE_API_KEY=your-bytedance-api-key
+BYTEDANCE_URL=https://ark.cn-beijing.volces.com
 
-# 自定义模型
-CUSTOM_MODELS=-all,+DeepSeekV3-2@ByteDance=deepseek-v3-2-251201
-CUSTOM_MODELS=-all,+DeepSeekV3-2@ByteDance=deepseek-v3-2-251201, +字节的_在线推理_好像是自动给你选@ByteDance=ep-20260108164623-gkxw5,doubao-seedream-4-5-251128@ByteDance@doubao-seedream-4-5-251128
+# 自定义模型配置
+CUSTOM_MODELS=-all,+DeepSeekV3-2@ByteDance=deepseek-v3-2-251201,+字节的_在线推理_好像是自动给你选@ByteDance=ep-20260108164623-gkxw5,doubao-seedream-4-5-251128@ByteDance@doubao-seedream-4-5-251128
 ```
 
 ### 使用 OpenAI
