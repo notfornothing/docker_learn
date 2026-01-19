@@ -1,5 +1,3 @@
-version: '3.6'  # 兼容 Docker 17.03.2
-
 services:
   neo4j:
     image: neo4j:latest

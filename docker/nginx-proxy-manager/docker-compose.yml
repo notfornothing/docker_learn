@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   nginx-proxy-manager:
     # 服务定义，可以被根目录的 docker-compose.yml 引用
